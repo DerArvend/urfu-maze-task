@@ -116,6 +116,10 @@ const startSearch = () => {
     let visited = [];
 
     findPath(queue, visited, path);
+    if (path.find(c => cellsAreEqual(c, finishCell)) === undefined){
+        alert("Not found");
+        return;
+    }
 
     let pathToFinish = getPath(path);
     drawPath(pathToFinish);
