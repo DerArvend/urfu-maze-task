@@ -1,4 +1,6 @@
-const maze = {
+'use strict';
+
+const mazeStates = {
     cells: []
 };
 
@@ -10,31 +12,37 @@ const initWalls = [
 
 let settingStart = false;
 let settingFinish = false;
+let pathIsDrawn = false;
+let pathCellsList;
 
 let startCell;
 let finishCell;
 
-const setStartButton = '<button onclick="settingStart = true; settingFinish = false;">Set start</button>';
-const setFinishButton = '<button onclick="settingStart = false; settingFinish = true">Set finish</button>';
-const startSearchButton = '<button onclick="startSearch()">GO!!!</button>';
+const startButton = '<button onclick="settingStart = true; settingFinish = false; clearPath()">Set start</button>';
+const finishButton = '<button onclick="settingStart = false; settingFinish = true; clearPath()">Set finish</button>';
+const startSearchButton = '<button onclick="clearPath(); startSearch()">GO!!!</button>';
 
+
+const init = () => {
+    createMaze(10);
+};
 
 const createMaze = size => {
     let root = document.getElementById("root");
     let mazeHtml = "";
-    mazeHtml += '<div class = "maze">';
+    mazeHtml += '<div class = "mazeStates">';
     for (let i = 0; i < size; i++) {
-        maze.cells.push([]);
+        mazeStates.cells.push([]);
         mazeHtml += '<div class = "row">';
         for (let j = 0; j < size; j++) {
-            maze.cells[i].push("empty");
+            mazeStates.cells[i].push("empty");
             mazeHtml += `<div class="cell" state="empty" id="${i}-${j}" onclick="handleClick(${i}, ${j})"></div>`;
         }
         mazeHtml += '</div>';
     }
     mazeHtml += '</div>';
-    mazeHtml += setStartButton;
-    mazeHtml += setFinishButton;
+    mazeHtml += startButton;
+    mazeHtml += finishButton;
     mazeHtml += startSearchButton;
 
     root.innerHTML = mazeHtml;
@@ -42,76 +50,100 @@ const createMaze = size => {
     for (let w of initWalls) {
         toggleWall(w[0], w[1]);
     }
-}
+};
 
-function handleClick(i, j) {
+
+const handleClick = (i, j) => {
+    if (pathIsDrawn) clearPath();
     let cell = document.getElementById(`${i}-${j}`);
+
     if (settingStart) {
+        if (startCell !== undefined) {
+            let oldStart = document.getElementById(`${startCell.x}-${startCell.y}`);
+            oldStart.setAttribute("state", "empty");
+        }
+
         cell.setAttribute("state", "start");
-        startCell = [i, j];
+        startCell = {x: i, y: j};
         settingStart = false;
     }
     else if (settingFinish) {
+        if (finishCell !== undefined) {
+            let oldFinish = document.getElementById(`${finishCell.x}-${finishCell.y}`);
+            oldFinish.setAttribute("state", "empty");
+        }
+
         cell.setAttribute("state", "finish");
-        finishCell = [i, j];
+        finishCell = {x: i, y: j};
         settingFinish = false;
     }
     else toggleWall(i, j);
-}
+};
 
-function toggleWall(i, j) {
-    const newState = maze.cells[i][j] === "empty" ? "wall" : "empty";
-    maze.cells[i][j] = newState;
+const toggleWall = (i, j) => {
+    const newState = mazeStates.cells[i][j] === "empty" ? "wall" : "empty";
+    mazeStates.cells[i][j] = newState;
     let cell = document.getElementById(`${i}-${j}`);
     cell.setAttribute("state", newState);
-}
-
-const init = () => {
-    createMaze(8);
 };
+
 
 const startSearch = () => {
     if (!checkStartFinish()) return;
     let queue = [];
     let path = [];
-    path.push([[startCell[0], startCell[1]], "end"]);
-    queue.push([startCell[0], startCell[1]]);
+    path.push({x: startCell.x, y: startCell.y, prev: "end"});
+    queue.push(startCell);
     let visited = [];
+
     while (queue.length > 0) {
-        let cell = queue.shift();
-        if(cell[0] === finishCell[0] && cell[1] === finishCell[1]){
+        let cell = queue.shift(); //dequeue
+        if (cellsAreEqual(cell, finishCell)) {
             break;
         }
 
         visited.push(cell);
         let neighbours = getNeighbourCells(cell, visited);
-        for(let n of neighbours){
-            path.push([[n[0], n[1]], [cell[0], cell[1]]]);
-            queue.push([n[0], n[1]]);
-        };
+        for (let n of neighbours) {
+            path.push({x: n.x, y: n.y, prev: cell});
+            queue.push(n);
+            // path.push([[n[0], n[1]], [cell[0], cell[1]]]);
+            // queue.push([n[0], n[1]]);
+        }
     }
     let pathToFinish = getPath(path);
     drawPath(pathToFinish);
 };
 
+const cellsAreEqual = (c1, c2) => c1.x === c2.x && c1.y === c2.y;
+
 const getPath = path => {
-    let current = [finishCell[0], finishCell[1]];
-    let next = path.find(x => x[0][0] == current[0] && x[0][1] == current[1])[1];
+    let current = finishCell;
+    let next = path.find(c => cellsAreEqual(c, current)).prev;
     let result = [];
-    while (next !== "end"){
-        result.push([next[0], next[1]]);
+    while (next !== "end") {
+        result.push(next);
         current = next;
-        next = path.find(x => x[0][0] == current[0] && x[0][1] == current[1])[1];
+        next = path.find(c => cellsAreEqual(current, c)).prev;
     }
     return result;
 };
 
 const drawPath = path => {
-    for (let i = 0; i < path.length - 1; i++){
-        let cell = document.getElementById(`${path[i][0]}-${path[i][1]}`);
+    pathCellsList = [];
+    for (let i = 0; i < path.length - 1; i++) {
+        let cell = document.getElementById(`${path[i].x}-${path[i].y}`);
+        pathCellsList.push(cell);
         cell.setAttribute("path", "");
-    };
-}
+    }
+    pathIsDrawn = true;
+};
+
+const clearPath = () => {
+    if (!pathIsDrawn) return;
+    pathCellsList.forEach(c => c.removeAttribute("path"));
+    pathIsDrawn = false;
+};
 
 const checkStartFinish = () => {
     if (startCell === undefined) {
@@ -127,21 +159,21 @@ const checkStartFinish = () => {
 
 const getNeighbourCells = (cell, visited) => {
     let neighbours = [];
-    let cx = cell[0];
-    let cy = cell[1];
+    let cx = cell.x;
+    let cy = cell.y;
     for (let dx = -1; dx <= 1; dx++) {
         for (let dy = -1; dy <= 1; dy++) {
             if (Math.abs(dx) !== Math.abs(dy) && cx + dx >= 0 && cy + dy >= 0 &&
-                cx + dx < maze.cells.length && cy + dy < maze.cells.length &&
-                maze.cells[cx + dx][cy + dy] !== "wall"
-            && !contsinsCell(visited, [cx + dx, cy + dy])) {
-                neighbours.push([cx + dx, cy + dy]);
+                cx + dx < mazeStates.cells.length && cy + dy < mazeStates.cells.length &&
+                mazeStates.cells[cx + dx][cy + dy] !== "wall"
+                && !containsCell(visited, {x: cx + dx, y: cy + dy})) {
+                neighbours.push({x: cx + dx, y: cy + dy});
             }
         }
     }
     return neighbours;
 };
 
-const contsinsCell = (array, cell) => {
-    return array.some(x => x[0] === cell[0] && x[1] === cell[1]);
+const containsCell = (array, cell) => {
+    return array.some(c => c.x === cell.x && c.y === cell.y);
 };
