@@ -10,8 +10,8 @@ body {
     margin: -1px;
     border: 1px solid lightgray;
     /*border-radius: 3px;*/
-    width: 25px;
-    height: 25px;
+    width: 35px;
+    height: 35px;
     background: white;
 }
 
@@ -66,6 +66,7 @@ button {
     margin: 8px;
     border-radius: 3px;
     cursor: pointer;
+    font-size: 15px;
 }
 
 button:hover {
@@ -103,12 +104,12 @@ button.raised:active {
 }
 
 .control-bombs-row {
-    font-size: 26px;
+    font-size: 32px;
     margin-top: -20px;
 }
 
 .control-bombs-row button {
-    font-size: 22px;
+    font-size: 27px;
 }
 
 .bombs-container {
@@ -118,7 +119,7 @@ button.raised:active {
 
 .bombs-caption {
     display: inline-block;
-    font-size: 12px;
+    font-size: 16px;
     width: max-content;
     color: rgba(0, 0, 0, 0.7);
 }
