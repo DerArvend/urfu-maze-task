@@ -13,27 +13,62 @@ body {
     width: 35px;
     height: 35px;
     background: white;
+    position: relative;
 }
 
 .cell[state="wall"] {
     background: black;
 }
 
-.cell[state="start"] {
+.cell[state="start"]::after {
+    content: '';
+    position: absolute;
+    top: -14px;
+    left: -14px;
+    bottom: -14px;
+    right: -14px;
+    border-radius: 50%;
+    transform: scale(0.33);
+
     background: rgb(31, 142, 234);
 }
 
-.cell[state="finish"] {
+.cell[state="finish"]::after {
+    content: '';
+    position: absolute;
+    top: -14px;
+    left: -14px;
+    bottom: -14px;
+    right: -14px;
+    border-radius: 50%;
+    transform: scale(0.33);
     background: rgb(225, 0, 50);
 }
 
-.cell[path] {
-    background: rgba(0, 255, 0, 0.5);
+.cell[path][state="wall"]::after {
+    content: '';
+    position: absolute;
+    top: -14px;
+    left: -14px;
+    bottom: -14px;
+    right: -14px;
+    border-radius: 50%;
+    transform: scale(0.33);
+    background:rgb(0, 200, 0);
 }
 
-.cell[path][state="wall"] {
-    background: rgb(0, 100, 0);
-}
+.cell[path]::after {
+    content: '';
+    position: absolute;
+    top: -14px;
+    left: -14px;
+    bottom: -14px;
+    right: -14px;
+    border-radius: 50%;
+    transform: scale(0.33);
+    background: rgba(0, 255, 0, 0.7);
+  }
+
 
 .icona {
     display: none;
