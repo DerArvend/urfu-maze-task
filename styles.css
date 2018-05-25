@@ -54,7 +54,7 @@ body {
     right: -14px;
     border-radius: 50%;
     transform: scale(0.33);
-    background:rgb(0, 200, 0);
+    background:rgb(0, 220, 0);
 }
 
 .cell[path]::after {
@@ -66,7 +66,7 @@ body {
     right: -14px;
     border-radius: 50%;
     transform: scale(0.33);
-    background: rgba(0, 255, 0, 0.7);
+    background: rgb(0, 225, 0);
   }
 
 
