@@ -1,14 +1,17 @@
 body {
-    font-size: 0;
+    font-size: 18px;
+    font-family: 'Roboto', Helvetica, Arial, sans-serif;
+    text-align: center;
 }
 
 .cell {
     display: inline-block;
     padding: 2px;
+    margin: -1px;
     border: 1px solid lightgray;
-    border-radius: 3px;
-    width: 15px;
-    height: 15px;
+    /*border-radius: 3px;*/
+    width: 25px;
+    height: 25px;
     background: white;
 }
 
@@ -16,28 +19,106 @@ body {
     background: black;
 }
 
-.cell[state="start"]{
-    background: blue;
+.cell[state="start"] {
+    background: rgb(31, 142, 234);
 }
 
-.cell[state="finish"]{
-    background: red;
+.cell[state="finish"] {
+    background: rgb(225, 0, 50);
 }
 
-.cell[path]{
+.cell[path] {
     background: rgba(0, 255, 0, 0.5);
 }
 
-.icona{
+.cell[path][state="wall"] {
+    background: rgb(0, 100, 0);
+}
+
+.icona {
+    display: none;
     position: absolute;
     top: 5px;
     right: 5px;
 }
 
-.maze {
-    margin: auto auto 10px;
+#root::before {
+    content: "<br>";
+}
+
+#root {
+    display: inline-block;
+    font-size: 0;
+    margin-top: 30px;
+    box-shadow: 0 0 15px -5px black;
+    padding: auto;
 }
 
 button {
-    display: block;
+    display: inline-block;
+    font-family: 'Roboto', Helvetica, Arial, sans-serif;
+    border: none;
+    background: none;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.87);
+    font-weight: 500;
+    padding: 8px 16px;
+    margin: 8px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+
+}
+
+button:active {
+    background-color: rgba(0, 0, 0, 0.18);
+}
+
+button:focus {
+    outline: none;
+}
+
+button.raised {
+    background: rgb(31, 142, 234);
+    color: white;
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.4);
+}
+
+button.raised:hover {
+    background: rgb(25, 118, 210);
+}
+
+button.raised:active {
+    background: rgb(95, 188, 255);
+}
+
+.control-buttons-row,
+.control-bombs-row {
+    display: flex;
+    margin: auto;
+    justify-content: center;
+}
+
+.control-bombs-row {
+    font-size: 26px;
+    margin-top: -20px;
+}
+
+.control-bombs-row button {
+    font-size: 22px;
+}
+
+.bombs-container {
+    display: inline-block;
+    position: relative;
+}
+
+.bombs-caption {
+    display: inline-block;
+    font-size: 12px;
+    width: max-content;
+    color: rgba(0, 0, 0, 0.7);
 }

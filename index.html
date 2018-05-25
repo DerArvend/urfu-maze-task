@@ -3,11 +3,28 @@
 <head>
     <title>Title</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="imptst.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500">
     <script src="index.js"></script>
 </head>
 <body onload="init()">
-    <div id="root"></div>
+<p class="bombs-caption">Bombs aviable</p>
+<div class="control-bombs-row">
+    <div>
+        <button onclick="clearPath(); decrementBombs()">-</button>
+        <div class="bombs-container">
+            <div id="bombs-aviable"></div>
+        </div>
+        <button onclick="clearPath(); incrementBombs();">+</button>
+    </div>
+</div>
+<div class="control-buttons-row">
+    <button onclick="settingStart = true; settingFinish = false; clearPath()">Set start</button>
+    <button class="raised" onclick="clearPath(); startSearch()">GO!!!</button>
+    <button onclick="settingStart = false; settingFinish = true; clearPath()">Set finish</button>
+</div>
+<div class="maze">
     <img src="icona.jpg" class="icona">
+    <div id="root"></div>
+</div>
 </body>
 </html>

@@ -5,9 +5,19 @@ const mazeStates = {
 };
 
 const initWalls = [
+    [1, 0],
+    [1, 1],
     [1, 2],
     [1, 3],
-    [1, 4]
+    [1, 4],
+    [1, 5],
+    [1, 6],
+    [3, 0],
+    [3, 1],
+    [3, 2],
+    [3, 3],
+    [3, 4],
+    [3, 5],
 ];
 
 let settingStart = false;
@@ -17,13 +27,11 @@ let pathCellsList;
 
 let startCell;
 let finishCell;
-
-const startButton = '<button onclick="settingStart = true; settingFinish = false; clearPath()">Set start</button>';
-const finishButton = '<button onclick="settingStart = false; settingFinish = true; clearPath()">Set finish</button>';
-const startSearchButton = '<button onclick="clearPath(); startSearch()">GO!!!</button>';
+let bombsAviable;
 
 
 const init = () => {
+    setBombs(1);
     createMaze(10);
 };
 
@@ -41,10 +49,6 @@ const createMaze = size => {
         mazeHtml += '</div>';
     }
     mazeHtml += '</div>';
-    mazeHtml += startButton;
-    mazeHtml += finishButton;
-    mazeHtml += startSearchButton;
-
     root.innerHTML = mazeHtml;
 
     for (let w of initWalls) {
@@ -52,6 +56,20 @@ const createMaze = size => {
     }
 };
 
+const setBombs = number => {
+    let e = document.getElementById("bombs-aviable");
+    e.innerHTML = number;
+    bombsAviable = number;
+};
+
+const incrementBombs = () => {
+    setBombs(bombsAviable + 1);
+};
+
+const decrementBombs = () => {
+    if (bombsAviable > 0)
+        setBombs(bombsAviable - 1);
+};
 
 const handleClick = (i, j) => {
     if (pathIsDrawn) clearPath();
@@ -88,14 +106,22 @@ const toggleWall = (i, j) => {
 };
 
 
+
 const startSearch = () => {
     if (!checkStartFinish()) return;
     let queue = [];
     let path = [];
     path.push({x: startCell.x, y: startCell.y, prev: "end"});
-    queue.push(startCell);
+    queue.push({...startCell, bombsLeft: bombsAviable});
     let visited = [];
 
+    findPath(queue, visited, path);
+
+    let pathToFinish = getPath(path);
+    drawPath(pathToFinish);
+};
+
+const findPath = (queue, visited, path) => {
     while (queue.length > 0) {
         let cell = queue.shift(); //dequeue
         if (cellsAreEqual(cell, finishCell)) {
@@ -103,17 +129,22 @@ const startSearch = () => {
         }
 
         visited.push(cell);
-        let neighbours = getNeighbourCells(cell, visited);
-        for (let n of neighbours) {
+        let emptyNeighbours = getEmptyNeighbourCells(cell, visited);
+        for (let n of emptyNeighbours) {
             path.push({x: n.x, y: n.y, prev: cell});
-            queue.push(n);
-            // path.push([[n[0], n[1]], [cell[0], cell[1]]]);
-            // queue.push([n[0], n[1]]);
+            queue.push({...n, bombsLeft: cell.bombsLeft});
+        }
+
+        if (cell.bombsLeft > 0) {
+            let wallNeighbours = getWallNeighbourCells(cell, visited);
+            for (let n of wallNeighbours) {
+                path.push({x: n.x, y: n.y, prev: cell});
+                queue.push({...n, bombsLeft: cell.bombsLeft - 1});
+            }
         }
     }
-    let pathToFinish = getPath(path);
-    drawPath(pathToFinish);
 };
+
 
 const cellsAreEqual = (c1, c2) => c1.x === c2.x && c1.y === c2.y;
 
@@ -157,7 +188,10 @@ const checkStartFinish = () => {
     return true;
 };
 
-const getNeighbourCells = (cell, visited) => {
+const getEmptyNeighbourCells = (cell, visited) => getNeighbourCells(cell, visited, "empty");
+const getWallNeighbourCells = (cell, visited) => getNeighbourCells(cell, visited, "wall");
+
+const getNeighbourCells = (cell, visited, requiredState) => {
     let neighbours = [];
     let cx = cell.x;
     let cy = cell.y;
@@ -165,7 +199,7 @@ const getNeighbourCells = (cell, visited) => {
         for (let dy = -1; dy <= 1; dy++) {
             if (Math.abs(dx) !== Math.abs(dy) && cx + dx >= 0 && cy + dy >= 0 &&
                 cx + dx < mazeStates.cells.length && cy + dy < mazeStates.cells.length &&
-                mazeStates.cells[cx + dx][cy + dy] !== "wall"
+                mazeStates.cells[cx + dx][cy + dy] === requiredState
                 && !containsCell(visited, {x: cx + dx, y: cy + dy})) {
                 neighbours.push({x: cx + dx, y: cy + dy});
             }
